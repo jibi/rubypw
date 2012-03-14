@@ -10,6 +10,7 @@
 
 require 'yaml'
 require 'ruport'
+require 'io/console'
 
 module RubyPw
 
@@ -68,10 +69,17 @@ class Manager
 			return
 		end
 
-		if password.nil?
-			print 'Password (blank for random password): '
-			password = (pw = $stdin.readline.chomp).empty? ? 
-				(Manager.random_chars @config[:pw_len]) : pw
+		print 'Password (blank for random password):'
+
+		password = STDIN.noecho { STDIN.readline.chomp }
+		if password.empty? 
+			password = Manager.random_chars @config[:pw_len]
+		else
+			print "\nRetype password:"
+			_password = STDIN.noecho { STDIN.readline.chomp }
+			puts ''
+
+			fail 'Passwords do not match' if password != _password
 		end
 
 		_add_password username, password
@@ -113,7 +121,7 @@ class Manager
 	def file_password filename
 		File.open(File.expand_path(filename), "r").each_line { |l|
 			l =~ /(.+) (.+)/
-			add_password $1, $2
+			_add_password $1, $2
 		}
 	end
 

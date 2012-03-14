@@ -26,7 +26,7 @@ class Manager
 	def get_db_password
 		print 'Key: '
 
-		STDIN.noecho { @db_pw = STDIN.readline.chomp }
+		@db_pw = STDIN.noecho { STDIN.readline.chomp }
 		print "\r"
 	end
 

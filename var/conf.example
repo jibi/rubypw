@@ -1,0 +1,4 @@
+---
+:db_file: ~/dbfile
+:qr_file: ~/lolqr.png
+:pw_len:	8

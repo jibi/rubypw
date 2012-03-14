@@ -30,7 +30,7 @@ class Manager
 		print "\r"
 	end
 
-  def write_db 
+	def write_db 
 		db = ''
 
 		@pw.each { |k,v| db += "#{k} #{v}\n"  }
@@ -42,12 +42,12 @@ class Manager
 			Time.now.to_s.split(" ")[0..1].join("_")) if File.exist? @config[:db_file]
 
 		File.open(@config[:db_file], 'w') { |f| f.write crypted } 
-  end
+	end
 
-  def read_db
+	def read_db
 		crypted = ''
 
-  	File.open(@config[:db_file], 'r').each_line { |l| crypted += l }
+		File.open(@config[:db_file], 'r').each_line { |l| crypted += l }
 		return if crypted.empty?
 		db = decrypt_data crypted, @db_pw
 		db.each_line { |l| l =~ /(.+) (.+)/; @pw[$1] = $2 }

@@ -139,7 +139,7 @@ class Manager
 
 	def dump_password file
 		db = ""
-  	File.open(@config[:db_file], 'r').each_line { |l| db += l } 
+		File.open(@config[:db_file], 'r').each_line { |l| db += l } 
 		Manager.dump_to_qrcode db, 4, file.nil? ? @config[:qr_file] : file
 	end
 

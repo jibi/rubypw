@@ -23,7 +23,7 @@ module Dump
 			data = Base64.encode64(data)
 
 			begin
-				qr	= RQRCode::QRCode.new(data, :size => qr_size)
+				qr = RQRCode::QRCode.new(data, :size => qr_size)
 			rescue
 				fail 'cannot dump db to qrcode: too big :(' if qr_size == 40
 
@@ -36,7 +36,7 @@ module Dump
 		
 			size.times { |x| size.times { |y|
 				zoom.times { |i| zoom.times { |j|
-  		  	png[x * zoom + i, y * zoom + j] = ChunkyPNG.Color qr.dark?(x,y) ? 'black' : 'white'
+					png[x * zoom + i, y * zoom + j] = ChunkyPNG.Color qr.dark?(x,y) ? 'black' : 'white'
 				}}
 			}}
 	

@@ -18,7 +18,7 @@ module Dump
 	end
 
 	module Mod
-		def dump_to_qrcode data, zoom, file
+		def dump_to_qrcode(data, zoom, file)
 			qr_size = 1
 			data = Base64.encode64(data)
 
@@ -36,7 +36,7 @@ module Dump
 		
 			size.times { |x| size.times { |y|
 				zoom.times { |i| zoom.times { |j|
-					png[x * zoom + i, y * zoom + j] = ChunkyPNG.Color qr.dark?(x,y) ? 'black' : 'white'
+					png[x * zoom + i, y * zoom + j] = ChunkyPNG.Color(qr.dark?(x,y) ? 'black' : 'white')
 				}}
 			}}
 	

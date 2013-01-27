@@ -3,7 +3,6 @@ RubyPw: it handles your password!
 
 Dangerous-Dont-Ever-Use!!1!
 -------
-Just testing it out. I'm not shure it's cryptographically secure/reliable.
 Just DONT entrust it your passwords at the moment.
 
 Wat

@@ -5,7 +5,7 @@
 #            DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
 #   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
 #
-#  0. You just DO WHAT THE FUCK YOU WANT TO. 
+#  0. You just DO WHAT THE FUCK YOU WANT TO.
 #
 
 module RandomChar
@@ -14,9 +14,8 @@ module RandomChar
 	end
 
 	module Mod
-		def random_chars len 
-			sym = ('a'..'z').to_a + ('A'..'Z').to_a + 
-				('0'..'9').to_a + %w(! ? @ # [ ] ( ) _ -)
+		def random_chars(len)
+			sym = ('a'..'z').to_a + ('A'..'Z').to_a + ('0'..'9').to_a + %w(! ? @ # [ ] ( ) _ -)
 			str = ''
 
 			len.to_i.times { str += sym[rand(sym.size)] }

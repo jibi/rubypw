@@ -15,7 +15,7 @@ class Crypter
 	MIN_ITER = 100000
 	attr_reader :salt, :iter, :iv
 
-	def initialize pw, salt=nil, iter=nil, iv=nil
+	def initialize(pw, salt=nil, iter=nil, iv=nil)
 
 		@salt	= salt.nil? ? OpenSSL::Random.random_bytes(8) : salt
 		@iter	= iter.nil? ? (rand * MIN_ITER + MIN_ITER).to_i : iter
@@ -26,10 +26,10 @@ class Crypter
 		print "\r            \r"
 	end
 
-	def encrypt_data data; do_crypt :encrypt, data; end
-	def decrypt_data data; do_crypt :decrypt, data; end
+	def encrypt_data(data); do_crypt :encrypt, data; end
+	def decrypt_data(data); do_crypt :decrypt, data; end
 
-	def do_crypt what, data
+	def do_crypt(what, data)
 		c = OpenSSL::Cipher::Cipher::AES.new(256, :CBC)
 		c.send what
 

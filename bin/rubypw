@@ -33,5 +33,5 @@ fail 'Invalid action' if !(%w(add file get upd del list gen dump).include? ARGV[
 fail 'No user specified' if (%w(add get upd del).include? ARGV[0]) && ARGV[1].nil?
 fail 'No file specified' if (%w(file).include? ARGV[0]) && ARGV[1].nil?
 
-RubyPw::Manager.start ARGV
+RubyPw::Manager.start(ARGV)
 

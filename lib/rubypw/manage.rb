@@ -5,7 +5,7 @@
 #            DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
 #   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
 #
-#  0. You just DO WHAT THE FUCK YOU WANT TO. 
+#  0. You just DO WHAT THE FUCK YOU WANT TO.
 #
 
 require 'yaml'
@@ -30,17 +30,17 @@ class Manager
 	class << self
 		def start(args)
 			manager = Manager.new
-			manager.do_action args[0], args[1]
+			manager.do_action(args[0], args[1])
 		end
 	end
 
 	def initialize
-		@pw	= Hash.new
+		@pw	  = Hash.new
 		@modified = false
 
 		do_config
 
-		Dir.mkdir Config::RUBYPW_DIR if !(Dir.exist? Config::RUBYPW_DIR)
+		Dir.mkdir Config::RUBYPW_DIR if not Dir.exist?(Config::RUBYPW_DIR)
 	end
 
 	def do_config
@@ -56,27 +56,27 @@ class Manager
 		@config[:pw_len] ||= Config::PW_LENGTH
 	end
 
-	def do_action action, arg
-		load_db if %w(add file get upd del list).include? action
+	def do_action(action, arg)
+		load_db if %w(add file get upd del list).include?(action)
 		send action + '_password', arg
 		write_db if @modified
 	end
 
-	def add_password username
-		set_password username, false	
+	def add_password(username)
+		set_password(username, false)
 	end
 
-	def upd_password username
-		set_password username, true
+	def upd_password(username)
+		set_password(username, true)
 	end
 
-	def set_password username, update
-		fail 'Empty username.' if(username.empty?)
+	def set_password(username, update)
+		fail 'Empty username.' if username.empty?
 
 		print 'Password (blank for random password):'
 
 		password = STDIN.noecho { STDIN.readline.chomp }
-		if password.empty? 
+		if password.empty?
 			password = Manager.random_chars @config[:pw_len]
 		else
 			print "\nRetype password:"
@@ -86,36 +86,35 @@ class Manager
 		end
 		puts ''
 
-		_set_password username, password, update
+		_set_password(username, password, update)
 	end
 
-	def get_password username
+	def get_password(username)
 		if @pw[username].nil?
-			$stderr.write "No pw found."
+			$stderr.write('No pw found.')
 		else
 			puts @pw[username]
 		end
 	end
 
-	def del_password username
+	def del_password(username)
 		if @pw[username].nil?
-			puts "#{username} does not exist.\n"
-			puts 'Not deleting.'
+			puts "#{username} does not exist.\nNot deleting."
 		else
-			@pw.delete username
+			@pw.delete(username)
 		end
 
 		@modified = true
 	end
 
-	def file_password filename
+	def file_password(filename)
 		File.open(File.expand_path(filename), "r").each_line { |l|
 			l =~ /(.+) (.+)/
 			_set_password $1, $2
 		}
 	end
 
-	def list_password stub
+	def list_password(stub)
 		table = Ruport::Data::Table.new
 		table.column_names = %w(user password)
 
@@ -123,29 +122,27 @@ class Manager
 		puts table.to_text
 	end
 
-
-	def _set_password username, password, overwrite
-		if (not @pw[username].nil?) && (not overwrite)
-			fail "#{username} already exists.\n" +
-				"Not updating: please delete first."
-		elsif @pw[username].nil? && overwrite
-			fail "#{username} does not exist.\n" +
-				"Not updating: please add first."
+	def _set_password(username, password, overwrite)
+		if not @pw[username].nil? and not overwrite
+			fail "#{username} already exists.\nNot updating: please delete first."
+		elsif @pw[username].nil? and overwrite
+			fail "#{username} does not exist.\nNot updating: please add first."
 		end
 
 		@pw[username] = password
 		@modified = true
 	end
 
-	def dump_password file
+	def dump_password(file)
 		db = ""
 		File.open(@config[:db_file], 'r').each_line { |l| db += l }
-		Manager.dump_to_qrcode db, 4, file.nil? ? @config[:qr_file] : file
+		Manager.dump_to_qrcode(db, 4, file.nil? ? @config[:qr_file] : file)
 	end
 
-	def gen_password pw_len
-		str = Manager.random_chars pw_len.nil? ? @config[:pw_len] : pw_len
+	def gen_password(pw_len)
+		str = Manager.random_chars(pw_len.nil? ? @config[:pw_len] : pw_len)
 		puts str
 	end
 end
 end
+

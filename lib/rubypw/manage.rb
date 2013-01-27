@@ -15,7 +15,6 @@ require 'io/console'
 module RubyPw
 
 class Manager
-	include Encrypt
 	include RandomChar
 	include Dump
 	
@@ -47,27 +46,32 @@ class Manager
 	def do_config
 		@config = {}
 
-		@config = open (Config::CONF_FILE) { |file| 
-			YAML.load(file) } if File.exist?(Config::CONF_FILE) 
+		@config = open (Config::CONF_FILE) { |file|
+			YAML.load(file) } if File.exist?(Config::CONF_FILE)
 
 		@config[:db_file] ||= Config::DB_FILE
 		@config[:db_file] = File.expand_path @config[:db_file]
 		@config[:qr_file] ||= Config::QR_FILE
 		@config[:qr_file] = File.expand_path @config[:qr_file]
-		@config[:pw_len] ||= Config::PW_LENGTH 
+		@config[:pw_len] ||= Config::PW_LENGTH
 	end
 
 	def do_action action, arg
-		load_db if %w(add file get set del list).include? action
+		load_db if %w(add file get upd del list).include? action
 		send action + '_password', arg
 		write_db if @modified
 	end
 
-	def add_password username, password=nil
-		if(username.empty?)
-			puts 'Fail: empty username.'
-			return
-		end
+	def add_password username
+		set_password username, false	
+	end
+
+	def upd_password username
+		set_password username, true
+	end
+
+	def set_password username, update
+		fail 'Empty username.' if(username.empty?)
 
 		print 'Password (blank for random password):'
 
@@ -77,26 +81,12 @@ class Manager
 		else
 			print "\nRetype password:"
 			_password = STDIN.noecho { STDIN.readline.chomp }
-			puts ''
 
 			fail 'Passwords do not match' if password != _password
 		end
+		puts ''
 
-		_add_password username, password
-	end
-
-	def set_password username
-		if(username.empty?)
-			puts 'Fail: empty username.'
-			return
-		end
-
-		print 'Password (blank for random password): '
-		password = $stdin.readline.chomp
-
-		password = Manager.generate_password if password.empty?
-
-		_add_password username, password, true
+		_set_password username, password, update
 	end
 
 	def get_password username
@@ -121,7 +111,7 @@ class Manager
 	def file_password filename
 		File.open(File.expand_path(filename), "r").each_line { |l|
 			l =~ /(.+) (.+)/
-			_add_password $1, $2
+			_set_password $1, $2
 		}
 	end
 
@@ -134,20 +124,22 @@ class Manager
 	end
 
 
-	def _add_password username, password, overwrite=false
-		if !@pw[username].nil? && (! overwrite)
-			puts "#{username} already exists.\n" 
-			puts 'Not updating: please delete first.'
-		else
-			@pw[username] = password
+	def _set_password username, password, overwrite
+		if (not @pw[username].nil?) && (not overwrite)
+			fail "#{username} already exists.\n" +
+				"Not updating: please delete first."
+		elsif @pw[username].nil? && overwrite
+			fail "#{username} does not exist.\n" +
+				"Not updating: please add first."
 		end
 
+		@pw[username] = password
 		@modified = true
 	end
 
 	def dump_password file
 		db = ""
-		File.open(@config[:db_file], 'r').each_line { |l| db += l } 
+		File.open(@config[:db_file], 'r').each_line { |l| db += l }
 		Manager.dump_to_qrcode db, 4, file.nil? ? @config[:qr_file] : file
 	end
 

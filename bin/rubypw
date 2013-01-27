@@ -7,7 +7,7 @@
 #            DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
 #   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
 #
-#  0. You just DO WHAT THE FUCK YOU WANT TO. 
+#  0. You just DO WHAT THE FUCK YOU WANT TO.
 #
 
 require 'rubypw'
@@ -20,7 +20,7 @@ Usage:
 	add  [user]: add user password
 	file [file]: import users/passwords from file
 	get  [user]: get user password
-	set  [user]: set user password
+	upd  [user]: update user password
 	del  [user]: del user password
 	list:        list users
 
@@ -29,8 +29,8 @@ Usage:
 eos
 end
 
-fail 'Invalid action' if !(%w(add file get set del list gen dump).include? ARGV[0])
-fail 'No user specified' if (%w(add get set del).include? ARGV[0]) && ARGV[1].nil?
+fail 'Invalid action' if !(%w(add file get upd del list gen dump).include? ARGV[0])
+fail 'No user specified' if (%w(add get upd del).include? ARGV[0]) && ARGV[1].nil?
 fail 'No file specified' if (%w(file).include? ARGV[0]) && ARGV[1].nil?
 
 RubyPw::Manager.start ARGV

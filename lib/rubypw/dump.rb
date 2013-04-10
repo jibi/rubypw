@@ -25,7 +25,7 @@ module Dump
 			begin
 				qr = RQRCode::QRCode.new(data, :size => qr_size)
 			rescue
-				fail 'cannot dump db to qrcode: too big :(' if qr_size == 40
+				raise 'qrcode: data too big' if qr_size == 40
 
 				qr_size += 1
 				retry

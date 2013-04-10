@@ -40,7 +40,7 @@ class Manager
 			_db_pw = STDIN.noecho { STDIN.readline.chomp }
 			print("\r            \r")
 
-			fail 'Keys do not match' if @db_pw != _db_pw
+			raise 'Keys do not match.' if @db_pw != _db_pw
 		end
 	end
 

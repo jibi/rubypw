@@ -39,7 +39,7 @@ class Crypter
 		begin
 			c.update(data) + c.final
 		rescue Exception => e
-			fail "Fatal tragedy while #{what.to_s}ing: #{e}"
+			raise "Cannot #{what.to_s}"
 		end
 	end
 end

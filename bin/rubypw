@@ -29,9 +29,9 @@ Usage:
 eos
 end
 
-fail 'Invalid action' if !(%w(add file get upd del list gen dump).include? ARGV[0])
-fail 'No user specified' if (%w(add get upd del).include? ARGV[0]) && ARGV[1].nil?
-fail 'No file specified' if (%w(file).include? ARGV[0]) && ARGV[1].nil?
+fail 'Invalid action' if not %w(add file get upd del list gen dump).include?(ARGV[0])
+fail 'No user specified' if %w(add get upd del).include?(ARGV[0]) and ARGV[1].nil?
+fail 'No file specified' if %w(file).include?(ARGV[0]) and ARGV[1].nil?
 
 RubyPw::Manager.start(ARGV)
 

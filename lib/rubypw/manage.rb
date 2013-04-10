@@ -30,13 +30,16 @@ class Manager
 	class << self
 		def start(args)
 			manager = Manager.new
-			manager.do_action(args[0], args[1])
+			manager.do_action(args)
+
+			manager
 		end
 	end
 
 	def initialize
 		@pw	  = Hash.new
 		@modified = false
+		@db_loaded = false
 
 		do_config
 
@@ -46,7 +49,7 @@ class Manager
 	def do_config
 		@config = {}
 
-		@config = open (Config::CONF_FILE) { |file|
+		@config = open(Config::CONF_FILE) { |file|
 			YAML.load(file) } if File.exist?(Config::CONF_FILE)
 
 		@config[:db_file] ||= Config::DB_FILE
@@ -56,48 +59,67 @@ class Manager
 		@config[:pw_len] ||= Config::PW_LENGTH
 	end
 
-	def do_action(action, arg)
-		load_db if %w(add file get upd del list).include?(action)
-		send action + '_password', arg
+	def do_action(args)
+		action = args.delete_at(0)
+
+		if %w(add file get upd del list get_users_like).include?(action) and not @db_loaded
+			load_db
+			@db_loaded = true
+		end
+
+		if %w(add file get upd del list gen dump).include?(action)
+			send(action + '_password', args)
+		else
+			send(action , args)
+		end
+
 		write_db if @modified
 	end
 
-	def add_password(username)
+	def add_password(args)
+		username = args[0]
+
 		set_password(username, false)
 	end
 
-	def upd_password(username)
+	def upd_password(args)
+		username = args[0]
+
 		set_password(username, true)
 	end
 
 	def set_password(username, update)
-		fail 'Empty username.' if username.empty?
+		raise ArgumentError, 'Empty username.' if username.empty?
 
-		print 'Password (blank for random password):'
+		print 'Password (blank for random password): '
 
 		password = STDIN.noecho { STDIN.readline.chomp }
 		if password.empty?
 			password = Manager.random_chars @config[:pw_len]
 		else
-			print "\nRetype password:"
+			print "\nRetype password: "
 			_password = STDIN.noecho { STDIN.readline.chomp }
 
-			fail 'Passwords do not match' if password != _password
+			raise 'Passwords do not match.' if password != _password
 		end
 		puts ''
 
 		_set_password(username, password, update)
 	end
 
-	def get_password(username)
+	def get_password(args)
+		username = args[0]
+
 		if @pw[username].nil?
-			$stderr.write('No pw found.')
+			puts "No pw found."
 		else
 			puts @pw[username]
 		end
 	end
 
-	def del_password(username)
+	def del_password(args)
+		username = args[0]
+
 		if @pw[username].nil?
 			puts "#{username} does not exist.\nNot deleting."
 		else
@@ -107,7 +129,9 @@ class Manager
 		@modified = true
 	end
 
-	def file_password(filename)
+	def file_password(args)
+		filename = args[0]
+
 		File.open(File.expand_path(filename), "r").each_line { |l|
 			l =~ /(.+) (.+)/
 			_set_password $1, $2
@@ -124,24 +148,34 @@ class Manager
 
 	def _set_password(username, password, overwrite)
 		if not @pw[username].nil? and not overwrite
-			fail "#{username} already exists.\nNot updating: please delete first."
+			raise "#{username} already exists.\nNot updating: please delete first."
 		elsif @pw[username].nil? and overwrite
-			fail "#{username} does not exist.\nNot updating: please add first."
+			raise "#{username} does not exist.\nNot updating: please add first."
 		end
 
 		@pw[username] = password
 		@modified = true
 	end
 
-	def dump_password(file)
+	def gen_password(args)
+		pw_len = args[0].nil? ? @config[:pw_len] : args[0]
+
+		str = Manager.random_chars(pw_len)
+		puts str
+	end
+
+	def dump_password(args)
+		file = args[0].nil? ? @config[:qr_file] : args[0]
+
 		db = ""
 		File.open(@config[:db_file], 'r').each_line { |l| db += l }
 		Manager.dump_to_qrcode(db, 4, file.nil? ? @config[:qr_file] : file)
 	end
 
-	def gen_password(pw_len)
-		str = Manager.random_chars(pw_len.nil? ? @config[:pw_len] : pw_len)
-		puts str
+	def get_users_like(args)
+		what = args[0]
+
+		puts @pw.select { |k, v| k.match(what) }.keys
 	end
 end
 end

@@ -13,15 +13,21 @@ require 'fileutils'
 
 module RubyPw
 class Manager
+	def db_exists?
+		File.exist?(@config[:db_file])
+	end
+
 	def load_db
-		if File.exist?(@config[:db_file])
+		if db_exists?
 			get_db_password(false)
 			salt, iter, iv, crypted = read_db
 
 			@crypter = Crypter.new(@db_pw, salt, iter, iv)
 
 			@crypter.decrypt_data(crypted).each_line { |l|
-				l =~ /(.+) (.+)/; @pw[$1] = $2 } if not crypted.nil?
+				l       =~ /(.+) (.+)/
+				@pw[$1] = $2
+			} if not crypted.nil?
 		else
 			puts 'No db found: using a new one.'
 			get_db_password(true)
@@ -51,10 +57,10 @@ class Manager
 		if db.empty?
 			crypted = ''
 		else
-			crypted	= @crypter.encrypt_data(db)
-			salt	= @crypter.salt
-			iter	= [@crypter.iter].pack("N")
-			iv	= @crypter.iv
+			crypted = @crypter.encrypt_data(db)
+			salt    = @crypter.salt
+			iter    = [@crypter.iter].pack("N")
+			iv      = @crypter.iv
 
 			crypted = salt + iter + iv + crypted
 		end

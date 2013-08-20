@@ -20,7 +20,7 @@ module Dump
 	module Mod
 		def dump_to_qrcode(data, zoom, file)
 			qr_size = 1
-			data = Base64.encode64(data)
+			data    = Base64.encode64(data)
 
 			begin
 				qr = RQRCode::QRCode.new(data, :size => qr_size)
@@ -44,3 +44,4 @@ module Dump
 		end
 	end
 end
+

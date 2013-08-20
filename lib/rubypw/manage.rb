@@ -19,31 +19,29 @@ class Manager
 	include Dump
 	
 	module Config
-	RUBYPW_DIR = File.expand_path '~/.rubypw'
-	CONF_FILE	 = RUBYPW_DIR + '/conf'
+		RUBYPW_DIR = File.expand_path '~/.rubypw'
+		CONF_FILE  = RUBYPW_DIR + '/conf'
 
-	DB_FILE 	 = RUBYPW_DIR + '/db'
-	QR_FILE 	 = '~/qrpw.png'
-	PW_LENGTH	 = 16
+		DB_FILE    = RUBYPW_DIR + '/db'
+		QR_FILE    = '~/qrpw.png'
+		PW_LENGTH  = 16
 	end
 
-	class << self
-		def start(args)
-			manager = Manager.new
-			manager.do_action(args)
+	def self.start(args)
+		manager = Manager.new
+		manager.do_action(args)
 
-			manager
-		end
+		manager
 	end
 
 	def initialize
-		@pw	  = Hash.new
-		@modified = false
+		@pw        = Hash.new
+		@modified  = false
 		@db_loaded = false
 
 		do_config
 
-		Dir.mkdir Config::RUBYPW_DIR if not Dir.exist?(Config::RUBYPW_DIR)
+		Dir.mkdir(Config::RUBYPW_DIR) if not Dir.exist?(Config::RUBYPW_DIR)
 	end
 
 	def do_config
@@ -53,14 +51,19 @@ class Manager
 			YAML.load(file) } if File.exist?(Config::CONF_FILE)
 
 		@config[:db_file] ||= Config::DB_FILE
-		@config[:db_file] = File.expand_path @config[:db_file]
 		@config[:qr_file] ||= Config::QR_FILE
+		@config[:pw_len]  ||= Config::PW_LENGTH
+
+		@config[:db_file] = File.expand_path @config[:db_file]
 		@config[:qr_file] = File.expand_path @config[:qr_file]
-		@config[:pw_len] ||= Config::PW_LENGTH
 	end
 
 	def do_action(args)
 		action = args.delete_at(0)
+
+		if %w(get upd del list get_users_like).include?(action) and not @db_loaded
+			raise 'No db found, cannot do action ' + action if not db_exists?
+		end
 
 		if %w(add file get upd del list get_users_like).include?(action) and not @db_loaded
 			load_db
@@ -95,7 +98,7 @@ class Manager
 
 		password = STDIN.noecho { STDIN.readline.chomp }
 		if password.empty?
-			password = Manager.random_chars @config[:pw_len]
+			password = Manager.random_chars(@config[:pw_len])
 		else
 			print "\nRetype password: "
 			_password = STDIN.noecho { STDIN.readline.chomp }
@@ -134,12 +137,12 @@ class Manager
 
 		File.open(File.expand_path(filename), "r").each_line { |l|
 			l =~ /(.+) (.+)/
-			_set_password $1, $2
+			_set_password($1, $2)
 		}
 	end
 
 	def list_password(stub)
-		table = Ruport::Data::Table.new
+		table              = Ruport::Data::Table.new
 		table.column_names = %w(user password)
 
 		@pw.each { |n,v| table << [n,v] }

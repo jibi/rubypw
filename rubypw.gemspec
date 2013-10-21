@@ -1,6 +1,6 @@
 Gem::Specification.new {|s|
 	s.name = 'rubypw'
-	s.version = '0.0.2'
+	s.version = '0.0.3'
 	s.author = 'jibi'
 	s.email = 'jibi@paranoici.org'
 	s.homepage = 'http://github.com/jibi/rubypw'

@@ -20,37 +20,37 @@ class Manager
 	
 	module Config
 		RUBYPW_DIR = File.expand_path '~/.rubypw'
-		CONF_FILE  = RUBYPW_DIR + '/conf'
+		CONF_FILE  = '/conf'
+		DB_FILE    = '/db'
 
-		DB_FILE    = RUBYPW_DIR + '/db'
 		QR_FILE    = '~/qrpw.png'
 		PW_LENGTH  = 16
 	end
 
-	def self.start(args)
-		manager = Manager.new
+	def self.start(args, dir = Config::RUBYPW_DIR)
+		manager = Manager.new(dir)
 		manager.do_action(args)
 
 		manager
 	end
 
-	def initialize
+	def initialize(dir)
 		@pw        = Hash.new
 		@modified  = false
 		@db_loaded = false
 
-		do_config
+		do_config(dir)
 
-		Dir.mkdir(Config::RUBYPW_DIR) if not Dir.exist?(Config::RUBYPW_DIR)
+		Dir.mkdir(dir) if not Dir.exist?(dir)
 	end
 
-	def do_config
-		@config = {}
+	def do_config(dir)
+		conf_file = dir + Config::CONF_FILE
 
-		@config = open(Config::CONF_FILE) { |file|
-			YAML.load(file) } if File.exist?(Config::CONF_FILE)
+		@config = File.exist?(conf_file) ?
+			open(Config::CONF_FILE) { |file| YAML.load(file) } : {}
 
-		@config[:db_file] ||= Config::DB_FILE
+		@config[:db_file] ||= dir + Config::DB_FILE
 		@config[:qr_file] ||= Config::QR_FILE
 		@config[:pw_len]  ||= Config::PW_LENGTH
 

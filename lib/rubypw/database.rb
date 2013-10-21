@@ -21,6 +21,7 @@ class Manager
 		if db_exists?
 			get_db_password(false)
 			salt, iter, iv, crypted = read_db
+			iter = iter.to_i
 
 			@crypter = Crypter.new(@db_pw, salt, iter, iv)
 
@@ -59,8 +60,17 @@ class Manager
 		else
 			crypted = @crypter.encrypt_data(db)
 			salt    = @crypter.salt
-			iter    = [@crypter.iter].pack("N")
+			iter    = "%08d" % @crypter.iter
 			iv      = @crypter.iv
+
+			#
+			# DB format:
+			# =========================================================
+			# salt:       string, 8 bytes
+			# iter:       string, 8 bytes (will be converted to integer)
+			# iv:         string, 16 bytes
+			# cyphertext: string
+			#
 
 			crypted = salt + iter + iv + crypted
 		end
@@ -78,7 +88,7 @@ class Manager
 		File.open(@config[:db_file], 'r').each_line { |l| crypted += l }
 		return if crypted.empty? || crypted.size < 28
 
-		crypted.unpack("A8NA16A*")
+		crypted.unpack("A8A8A16A*")
 	end
 end
 end

@@ -8,11 +8,13 @@
 #  0. You just DO WHAT THE FUCK YOU WANT TO.
 #
 
-require 'rubypw/encrypt'
-require 'rubypw/dump'
-require 'rubypw/random_char'
+module RubyPw
+module Config
+	RUBYPW_DIR = File.expand_path '~/.rubypw'
+	CONF_FILE  = '/conf'
+	DB_FILE    = '/db'
 
-require 'rubypw/config'
-require 'rubypw/manage'
-require 'rubypw/database'
-
+	QR_FILE    = '~/qrpw.png'
+	PW_LENGTH  = 16
+end
+end

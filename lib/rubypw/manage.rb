@@ -17,22 +17,7 @@ module RubyPw
 class Manager
 	include RandomChar
 	include Dump
-	
-	module Config
-		RUBYPW_DIR = File.expand_path '~/.rubypw'
-		CONF_FILE  = '/conf'
-		DB_FILE    = '/db'
-
-		QR_FILE    = '~/qrpw.png'
-		PW_LENGTH  = 16
-	end
-
-	def self.start(args, dir = Config::RUBYPW_DIR)
-		manager = Manager.new(dir)
-		manager.do_action(args)
-
-		manager
-	end
+	include Config
 
 	def initialize(dir)
 		@pw        = Hash.new
@@ -45,14 +30,14 @@ class Manager
 	end
 
 	def do_config(dir)
-		conf_file = dir + Config::CONF_FILE
+		conf_file = dir + CONF_FILE
 
 		@config = File.exist?(conf_file) ?
-			open(Config::CONF_FILE) { |file| YAML.load(file) } : {}
+			open(CONF_FILE) { |file| YAML.load(file) } : {}
 
-		@config[:db_file] ||= dir + Config::DB_FILE
-		@config[:qr_file] ||= Config::QR_FILE
-		@config[:pw_len]  ||= Config::PW_LENGTH
+		@config[:db_file] ||= dir + DB_FILE
+		@config[:qr_file] ||= QR_FILE
+		@config[:pw_len]  ||= PW_LENGTH
 
 		@config[:db_file] = File.expand_path @config[:db_file]
 		@config[:qr_file] = File.expand_path @config[:qr_file]

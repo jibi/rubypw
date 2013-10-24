@@ -14,14 +14,15 @@ require 'rubypw'
 
 if ARGV[0].nil?
 abort <<eos
-You need to specify an action.
-This is RubyPw.
-Usage:
+this is rubypw.
+and you need to specify an action.
+usage:
 	add  [user]: add user password
 	file [file]: import users/passwords from file
 	get  [user]: get user password
 	upd  [user]: update user password
 	del  [user]: del user password
+	like [user]: get usernames like user
 	list:        list users
 
 	gen  [size]: generate a random password of [size] chars
@@ -29,14 +30,5 @@ Usage:
 eos
 end
 
-abort 'Invalid action.'    if not %w(add file get upd del list gen dump).include?(ARGV[0])
-abort 'No user specified.' if %w(add get upd del).include?(ARGV[0]) and ARGV[1].nil?
-abort 'No file specified.' if %w(file).include?(ARGV[0]) and ARGV[1].nil?
-
-begin
-	RubyPw::Manager.start(ARGV)
-rescue Exception => e
-	abort e.message
-end
-
+RubyPw::Manager.start(ARGV)
 

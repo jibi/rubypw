@@ -18,11 +18,13 @@ class Manager
 	include RandomChar
 	include Dump
 	include Config
+	include CLI
+
+	attr_reader :config, :pw
 
 	def initialize(dir)
-		@pw        = Hash.new
-		@modified  = false
-		@db_loaded = false
+		@pw          = Hash.new
+		@db_modified = false
 
 		do_config(dir)
 
@@ -43,78 +45,44 @@ class Manager
 		@config[:qr_file] = File.expand_path @config[:qr_file]
 	end
 
-	def do_action(args)
-		action = args.delete_at(0)
-
-		if %w(get upd del list get_users_like).include?(action) and not @db_loaded
-			raise 'No db found, cannot do action ' + action if not db_exists?
-		end
-
-		if %w(add file get upd del list get_users_like).include?(action) and not @db_loaded
-			load_db
-			@db_loaded = true
-		end
-
-		if %w(add file get upd del list gen dump).include?(action)
-			send(action + '_password', args)
-		else
-			send(action , args)
-		end
-
-		write_db if @modified
-	end
-
-	def add_password(args)
-		username = args[0]
-
-		set_password(username, false)
+	def add_password(username, password)
+		set_password(username, password, false)
 	end
 
 	def upd_password(args)
-		username = args[0]
-
-		set_password(username, true)
+		set_password(username, password, true)
 	end
 
-	def set_password(username, update)
+	def set_password(username, password, update)
 		raise ArgumentError, 'Empty username.' if username.empty?
 
-		print 'Password (blank for random password): '
-
-		password = STDIN.noecho { STDIN.readline.chomp }
-		if password.empty?
-			password = Manager.random_chars(@config[:pw_len])
-		else
-			print "\nRetype password: "
-			_password = STDIN.noecho { STDIN.readline.chomp }
-
-			raise 'Passwords do not match.' if password != _password
+		if not @pw[username].nil? and not update
+			raise "#{username} already exists.\nNot updating: please delete first."
+		elsif @pw[username].nil? and update
+			raise "#{username} does not exist.\nNot updating: please add first."
 		end
-		puts ''
 
-		_set_password(username, password, update)
+		@pw[username] = password
+		@db_modified = true
 	end
 
-	def get_password(args)
-		username = args[0]
+	def get_password(username)
 
 		if @pw[username].nil?
-			puts "No pw found."
+			raise "No user #{username} found."
 		else
-			puts @pw[username]
+			@pw[username]
 		end
 	end
 
-	def del_password(args)
-		username = args[0]
+	def del_password(username)
 
 		if @pw[username].nil?
-			puts "#{username} does not exist.\nNot deleting."
+			raise "No user #{username} found."
 		else
 			@pw.delete(username)
+			@db_modified = true
 		end
-
-		@modified = true
 	end
 
 	def file_password(args)
@@ -122,48 +90,12 @@ class Manager
 
 		File.open(File.expand_path(filename), "r").each_line { |l|
 			l =~ /(.+) (.+)/
-			_set_password($1, $2)
+			set_password($1, $2, 0)
 		}
 	end
 
-	def list_password(stub)
-		table              = Ruport::Data::Table.new
-		table.column_names = %w(user password)
-
-		@pw.each { |n,v| table << [n,v] }
-		puts table.to_text
-	end
-
-	def _set_password(username, password, overwrite)
-		if not @pw[username].nil? and not overwrite
-			raise "#{username} already exists.\nNot updating: please delete first."
-		elsif @pw[username].nil? and overwrite
-			raise "#{username} does not exist.\nNot updating: please add first."
-		end
-
-		@pw[username] = password
-		@modified = true
-	end
-
-	def gen_password(args)
-		pw_len = args[0].nil? ? @config[:pw_len] : args[0]
-
-		str = Manager.random_chars(pw_len)
-		puts str
-	end
-
-	def dump_password(args)
-		file = args[0].nil? ? @config[:qr_file] : args[0]
-
-		db = ""
-		File.open(@config[:db_file], 'r').each_line { |l| db += l }
-		Manager.dump_to_qrcode(db, 4, file.nil? ? @config[:qr_file] : file)
-	end
-
-	def get_users_like(args)
-		what = args[0]
-
-		puts @pw.select { |k, v| k.match(what) }.keys
+	def get_users_like(what)
+		@pw.select { |k, v| k.match(what) }.keys
 	end
 end
 end

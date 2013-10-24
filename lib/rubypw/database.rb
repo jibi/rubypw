@@ -17,9 +17,10 @@ class Manager
 		File.exist?(@config[:db_file])
 	end
 
-	def load_db
+	def load_db(password)
+		@db_pw = password
+
 		if db_exists?
-			get_db_password(false)
 			salt, iter, iv, crypted = read_db
 			iter = iter.to_i
 
@@ -31,27 +32,13 @@ class Manager
 			} if not crypted.nil?
 		else
 			puts 'No db found: using a new one.'
-			get_db_password(true)
-
 			@crypter = Crypter.new(@db_pw)
 		end
 	end
 
-	def get_db_password(first_time)
-		print('Key: ')
-		@db_pw = STDIN.noecho { STDIN.readline.chomp }
-		print("\r     \r")
-
-		if first_time
-			print('Retype key: ')
-			_db_pw = STDIN.noecho { STDIN.readline.chomp }
-			print("\r            \r")
-
-			raise 'Keys do not match.' if @db_pw != _db_pw
-		end
-	end
-
 	def write_db
+		return if not @db_modified
+
 		db = ''
 		@pw.each { |k,v| db += "#{k} #{v}\n"  }
 

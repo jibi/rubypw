@@ -10,11 +10,11 @@
 
 module RubyPw
 module Config
-	RUBYPW_DIR = File.expand_path '~/.rubypw'
-	CONF_FILE  = '/conf'
-	DB_FILE    = '/db'
+  RUBYPW_DIR = File.expand_path '~/.rubypw'
+  CONF_FILE  = '/conf'
+  DB_FILE    = '/db'
 
-	QR_FILE    = '~/qrpw.png'
-	PW_LENGTH  = 16
+  QR_FILE    = '~/qrpw.png'
+  PW_LENGTH  = 16
 end
 end

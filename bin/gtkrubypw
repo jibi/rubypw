@@ -1,0 +1,5 @@
+require 'rubypw'
+
+RubyPw::Manager.start_gui
+
+

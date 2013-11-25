@@ -30,5 +30,5 @@ usage:
 eos
 end
 
-RubyPw::Manager.start(ARGV)
+RubyPw::Manager.start_cli(ARGV)
 

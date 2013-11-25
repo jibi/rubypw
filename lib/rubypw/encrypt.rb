@@ -12,40 +12,40 @@ require 'openssl'
 
 module RubyPw
 class Crypter
-	MIN_ITER = 100000
-	attr_reader :salt, :iter, :iv
+  MIN_ITER = 100000
+  attr_reader :salt, :iter, :iv
 
-	def initialize(pw, salt=nil, iter=nil, iv=nil)
+  def initialize(pw, salt=nil, iter=nil, iv=nil)
 
-		@salt = salt.nil? ? OpenSSL::Random.random_bytes(8)   : salt
-		@iter = iter.nil? ? (rand * MIN_ITER + MIN_ITER).to_i : iter
-		@iv   = iv.nil?   ? OpenSSL::Random.random_bytes(16)  : iv
+    @salt = salt.nil? ? OpenSSL::Random.random_bytes(8)   : salt
+    @iter = iter.nil? ? (rand * MIN_ITER + MIN_ITER).to_i : iter
+    @iv   = iv.nil?   ? OpenSSL::Random.random_bytes(16)  : iv
 
-		print 'Unlocking...'
-		@key = OpenSSL::PKCS5::pbkdf2_hmac_sha1(pw, @salt, @iter, 32)
-		print "\r            \r"
-	end
+    print 'Unlocking...'
+    @key = OpenSSL::PKCS5::pbkdf2_hmac_sha1(pw, @salt, @iter, 32)
+    print "\r            \r"
+  end
 
-	def encrypt_data(data)
-		do_crypt(:encrypt, data)
-	end
+  def encrypt_data(data)
+    do_crypt(:encrypt, data)
+  end
 
-	def decrypt_data(data)
-		do_crypt(:decrypt, data)
-	end
+  def decrypt_data(data)
+    do_crypt(:decrypt, data)
+  end
 
-	def do_crypt(what, data)
-		c = OpenSSL::Cipher::Cipher::AES.new(256, :CBC)
-		c.send(what)
+  def do_crypt(what, data)
+    c = OpenSSL::Cipher::Cipher::AES.new(256, :CBC)
+    c.send(what)
 
-		c.key = @key
-		c.iv  = @iv
+    c.key = @key
+    c.iv  = @iv
 
-		begin
-			c.update(data) + c.final
-		rescue Exception => e
-			raise "Cannot #{what.to_s}: #{e.message}"
-		end
-	end
+    begin
+      c.update(data) + c.final
+    rescue Exception => e
+      raise "Cannot #{what.to_s}: #{e.message}"
+    end
+  end
 end
 end

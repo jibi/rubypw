@@ -9,18 +9,18 @@
 #
 
 module RandomChar
-	def self.included base
-		base.extend Mod
-	end
+  def self.included base
+    base.extend Mod
+  end
 
-	module Mod
-		def random_chars(len)
-			sym = ('a'..'z').to_a + ('A'..'Z').to_a + ('0'..'9').to_a + %w(! ? @ # [ ] ( ) _ -)
-			str = ''
+  module Mod
+    def random_chars(len)
+      sym = ('a'..'z').to_a + ('A'..'Z').to_a + ('0'..'9').to_a + %w(! ? @ # [ ] ( ) _ -)
+      str = ''
 
-			len.to_i.times { str += sym[rand(sym.size)] }
-			str.split(//).shuffle.join #useless
-		end
-	end
+      len.to_i.times { str += sym[rand(sym.size)] }
+      str.split(//).shuffle.join #useless
+    end
+  end
 end
 

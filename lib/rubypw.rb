@@ -15,6 +15,7 @@ require 'rubypw/random_char'
 require 'rubypw/config'
 
 require 'rubypw/cli'
+require 'rubypw/gui'
 
 require 'rubypw/manage'
 require 'rubypw/database'

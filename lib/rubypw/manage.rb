@@ -15,88 +15,100 @@ require 'io/console'
 module RubyPw
 
 class Manager
-	include RandomChar
-	include Dump
-	include Config
-	include CLI
+  include RandomChar
+  include Dump
+  include Config
+  include CLI
+  include GUI
 
-	attr_reader :config, :pw
+  attr_reader :config, :pw
 
-	def initialize(dir)
-		@pw          = Hash.new
-		@db_modified = false
+  def initialize(dir)
+    @pw          = Hash.new
+    @db_modified = false
 
-		do_config(dir)
+    do_config(dir)
 
-		Dir.mkdir(dir) if not Dir.exist?(dir)
-	end
+    Dir.mkdir(dir) if not Dir.exist?(dir)
+  end
 
-	def do_config(dir)
-		conf_file = dir + CONF_FILE
+  def do_config(dir)
+    conf_file = dir + CONF_FILE
 
-		@config = File.exist?(conf_file) ?
-			open(CONF_FILE) { |file| YAML.load(file) } : {}
+    @config = File.exist?(conf_file) ?
+      open(CONF_FILE) { |file| YAML.load(file) } : {}
 
-		@config[:db_file] ||= dir + DB_FILE
-		@config[:qr_file] ||= QR_FILE
-		@config[:pw_len]  ||= PW_LENGTH
+    @config[:db_file] ||= dir + DB_FILE
+    @config[:qr_file] ||= QR_FILE
+    @config[:pw_len]  ||= PW_LENGTH
 
-		@config[:db_file] = File.expand_path @config[:db_file]
-		@config[:qr_file] = File.expand_path @config[:qr_file]
-	end
+    @config[:db_file] = File.expand_path @config[:db_file]
+    @config[:qr_file] = File.expand_path @config[:qr_file]
+  end
 
-	def add_password(username, password)
-		set_password(username, password, false)
-	end
+  def add_password(username, password)
+    set_password(username, password, false)
+  end
 
-	def upd_password(args)
-		set_password(username, password, true)
-	end
+  def upd_password(username, password)
+    set_password(username, password, true)
+  end
 
-	def set_password(username, password, update)
-		raise ArgumentError, 'Empty username.' if username.empty?
+  def set_password(username, password, update)
+    raise ArgumentError, 'Empty username.' if username.empty?
 
-		if not @pw[username].nil? and not update
-			raise "#{username} already exists.\nNot updating: please delete first."
-		elsif @pw[username].nil? and update
-			raise "#{username} does not exist.\nNot updating: please add first."
-		end
+    if not @pw[username].nil? and not update
+      raise "#{username} already exists.\nNot updating: please delete first."
+    elsif @pw[username].nil? and update
+      raise "#{username} does not exist.\nNot updating: please add first."
+    end
 
-		@pw[username] = password
-		@db_modified = true
-	end
+    @pw[username] = password
+    @db_modified = true
+  end
 
-	def get_password(username)
+  def get_password(username)
 
-		if @pw[username].nil?
-			raise "No user #{username} found."
-		else
-			@pw[username]
-		end
-	end
+    if @pw[username].nil?
+      raise "No user #{username} found."
+    else
+      @pw[username]
+    end
+  end
 
-	def del_password(username)
+  def del_password(username)
 
-		if @pw[username].nil?
-			raise "No user #{username} found."
-		else
-			@pw.delete(username)
-			@db_modified = true
-		end
-	end
+    if @pw[username].nil?
+      raise "No user #{username} found."
+    else
+      @pw.delete(username)
+      @db_modified = true
+    end
+  end
 
-	def file_password(args)
-		filename = args[0]
+  def upd_username(username, new_username)
+    raise "No user #{username} found."  if @pw[username].nil?
+    raise "#{new_username} already exists." if not @pw[new_username].nil?
 
-		File.open(File.expand_path(filename), "r").each_line { |l|
-			l =~ /(.+) (.+)/
-			set_password($1, $2, 0)
-		}
-	end
+    password = @pw[username]
+    @pw.delete(username)
+    @pw[new_username] = password
 
-	def get_users_like(what)
-		@pw.select { |k, v| k.match(what) }.keys
-	end
+    @db_modified = true
+  end
+
+  def file_password(args)
+    filename = args[0]
+
+    File.open(File.expand_path(filename), "r").each_line { |l|
+      l =~ /(.+) (.+)/
+      set_password($1, $2, 0)
+    }
+  end
+
+  def get_users_like(what)
+    @pw.select { |k, v| k.match(what) }.keys
+  end
 end
 end
 

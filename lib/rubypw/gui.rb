@@ -102,7 +102,9 @@ module GUI
             @@manager.upd_username(iter[USERNAME], new_username)
             iter[USERNAME] = new_username
           rescue
-            md = Gtk::MessageDialog.new(window, Gtk::Dialog::MODAL |Gtk::Dialog::DESTROY_WITH_PARENT, Gtk::MessageDialog::ERROR, Gtk::MessageDialog::BUTTONS_CLOSE, "Username already exists.")
+            md = Gtk::MessageDialog.new(window, Gtk::Dialog::MODAL |
+                   Gtk::Dialog::DESTROY_WITH_PARENT, Gtk::MessageDialog::ERROR,
+                   Gtk::MessageDialog::BUTTONS_CLOSE, "Username already exists.")
             md.run
             md.destroy
           end
@@ -117,7 +119,9 @@ module GUI
             @@manager.upd_password(iter[USERNAME], new_password)
             iter[PASSWORD] = new_password
           rescue
-            md = Gtk::MessageDialog.new(window, Gtk::Dialog::MODAL |Gtk::Dialog::DESTROY_WITH_PARENT, Gtk::MessageDialog::ERROR, Gtk::MessageDialog::BUTTONS_CLOSE, "Cannot update password.")
+            md = Gtk::MessageDialog.new(window, Gtk::Dialog::MODAL |
+                   Gtk::Dialog::DESTROY_WITH_PARENT, Gtk::MessageDialog::ERROR,
+                   Gtk::MessageDialog::BUTTONS_CLOSE, "Cannot update password.")
             md.run
             md.destroy
           end

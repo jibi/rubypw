@@ -149,9 +149,9 @@ module GUI
       scrolled_win.set_policy(Gtk::POLICY_AUTOMATIC, Gtk::POLICY_AUTOMATIC)
       scrolled_win.add(treeview)
 
-      hbox = Gtk::VBox.new(false, 0)
+      hbox = Gtk::VBox.new(false, 8)
       hbox.pack_start(scrolled_win, true, true, 0)
-      hbox.pack_start(show_password, true, true, 0)
+      hbox.pack_start(show_password, false, true, 0)
 
       window.add(hbox)
       window.show_all

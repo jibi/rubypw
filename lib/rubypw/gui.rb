@@ -97,22 +97,30 @@ module GUI
       # edit username column row
       username_renderer.signal_connect("edited") do |_a,n,new_username|
         iter = @store.get_iter(n)
-        begin
-          @@manager.upd_username(iter[USERNAME], new_username)
-          iter[USERNAME] = new_username
-        rescue
-          #fail popup
+        if iter[USERNAME] != new_username
+          begin
+            @@manager.upd_username(iter[USERNAME], new_username)
+            iter[USERNAME] = new_username
+          rescue
+            md = Gtk::MessageDialog.new(window, Gtk::Dialog::MODAL |Gtk::Dialog::DESTROY_WITH_PARENT, Gtk::MessageDialog::ERROR, Gtk::MessageDialog::BUTTONS_CLOSE, "Username already exists.")
+            md.run
+            md.destroy
+          end
         end
       end
 
       # edit password column row
       password_renderer.signal_connect("edited") do |_a,n,new_password|
         iter = @store.get_iter(n)
-        begin
-          @@manager.upd_password(iter[USERNAME], new_password)
-          iter[PASSWORD] = new_password
-        rescue
-          #fail popup
+        if iter[PASSWORD] != new_password
+          begin
+            @@manager.upd_password(iter[USERNAME], new_password)
+            iter[PASSWORD] = new_password
+          rescue
+            md = Gtk::MessageDialog.new(window, Gtk::Dialog::MODAL |Gtk::Dialog::DESTROY_WITH_PARENT, Gtk::MessageDialog::ERROR, Gtk::MessageDialog::BUTTONS_CLOSE, "Cannot update password.")
+            md.run
+            md.destroy
+          end
         end
       end
 

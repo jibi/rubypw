@@ -61,6 +61,10 @@ module GUI
       window.window_position = Gtk::Window::POS_CENTER_ALWAYS
       window.set_default_size(480, 600)
 
+      title = Gtk::Label.new
+      title.set_alignment(0,0)
+      title.set_markup("<span font_desc='Sans 12'>RubyPW.</span>")
+
       treeview = Gtk::TreeView.new
       @store   = Gtk::ListStore.new(String, String)
 
@@ -150,7 +154,8 @@ module GUI
       scrolled_win.add(treeview)
 
       hbox = Gtk::VBox.new(false, 8)
-      hbox.pack_start(scrolled_win, true, true, 0)
+      hbox.pack_start(title,         false, true, 0)
+      hbox.pack_start(scrolled_win,  true,  true, 0)
       hbox.pack_start(show_password, false, true, 0)
 
       window.add(hbox)

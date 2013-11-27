@@ -27,8 +27,12 @@ class Manager
       @crypter = Crypter.new(@db_pw, salt, iter, iv)
 
       @crypter.decrypt_data(crypted).each_line { |l|
-        l       =~ /(.+) (.+)/
-        @pw[$1] = $2
+        l =~ /(.+) (.+)/
+
+        username = $1.force_encoding("UTF-8")
+        password = $2.force_encoding("UTF-8")
+
+        @pw[username] = password
       } if not crypted.nil?
     else
       puts 'No db found: using a new one.'

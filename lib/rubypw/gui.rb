@@ -48,8 +48,8 @@ module GUI
       end
 
       vbox = Gtk::VBox.new(false, 0)
-      vbox.pack_start(label, true, true, 0)
-      vbox.pack_start(password, true, true, 0)
+      vbox.pack_start(label,    true, false, 0)
+      vbox.pack_start(password, true, false, 0)
 
       db_window.add(vbox)
       db_window.show_all
@@ -59,7 +59,7 @@ module GUI
       window                 = Gtk::Window.new("RubyPW")
       window.border_width    = 10
       window.window_position = Gtk::Window::POS_CENTER_ALWAYS
-      window.set_default_size(480, 600)
+      window.set_default_size(360, 600)
 
       title = Gtk::Label.new
       title.set_alignment(0,0)
@@ -82,6 +82,8 @@ module GUI
       treeview.model = @store
 
       show_password = Gtk::CheckButton.new "Show Passwords"
+
+      new_account = Gtk::Button.new("New Account.")
 
       menu      = Gtk::Menu.new
       copy_menu = Gtk::MenuItem.new("Copy Password")
@@ -107,8 +109,8 @@ module GUI
             iter[USERNAME] = new_username
           rescue
             md = Gtk::MessageDialog.new(window, Gtk::Dialog::MODAL |
-                   Gtk::Dialog::DESTROY_WITH_PARENT, Gtk::MessageDialog::ERROR,
-                   Gtk::MessageDialog::BUTTONS_CLOSE, "Username already exists.")
+                                        Gtk::Dialog::DESTROY_WITH_PARENT, Gtk::MessageDialog::ERROR,
+                                        Gtk::MessageDialog::BUTTONS_CLOSE, "Username already exists.")
             md.run
             md.destroy
           end
@@ -124,8 +126,8 @@ module GUI
             iter[PASSWORD] = new_password
           rescue
             md = Gtk::MessageDialog.new(window, Gtk::Dialog::MODAL |
-                   Gtk::Dialog::DESTROY_WITH_PARENT, Gtk::MessageDialog::ERROR,
-                   Gtk::MessageDialog::BUTTONS_CLOSE, "Cannot update password.")
+                                        Gtk::Dialog::DESTROY_WITH_PARENT, Gtk::MessageDialog::ERROR,
+                                        Gtk::MessageDialog::BUTTONS_CLOSE, "Cannot update password.")
             md.run
             md.destroy
           end
@@ -145,6 +147,10 @@ module GUI
         end
       end
 
+      new_account.signal_connect("clicked") do |w|
+        new_account_window
+      end
+
       show_password.signal_connect("clicked") do |w|
         password_column.set_visible(w.active?)
       end
@@ -154,11 +160,61 @@ module GUI
       scrolled_win.add(treeview)
 
       hbox = Gtk::VBox.new(false, 8)
-      hbox.pack_start(title,         false, true, 0)
-      hbox.pack_start(scrolled_win,  true,  true, 0)
-      hbox.pack_start(show_password, false, true, 0)
+      hbox.pack_start(title,         false, false, 8)
+      hbox.pack_start(scrolled_win,  true,  true,  8)
+
+      halign = Gtk::Alignment.new 1, 0, 0, 0
+      halign.add(new_account)
+      hbox.pack_start(halign,        false, false, 8)
+      hbox.pack_start(show_password, false, false, 8)
 
       window.add(hbox)
+      window.show_all
+    end
+
+    def new_account_window
+      window                 = Gtk::Window.new("New account")
+      window.border_width    = 10
+      window.window_position = Gtk::Window::POS_CENTER_ALWAYS
+
+      table  = Gtk::Table.new(4, 2, false)
+
+      title  = Gtk::Label.new
+      label1 = Gtk::Label.new("Username:")
+      label2 = Gtk::Label.new("Password:")
+      user   = Gtk::Entry.new
+      pass   = Gtk::Entry.new
+
+      title.set_alignment(0,0)
+      title.set_markup("<span font_desc='Sans 12'>New account.</span>")
+
+      table.attach(title,  0, 1, 0, 1, Gtk::FILL, Gtk::FILL, 4, 8)
+      table.attach(label1, 0, 1, 1, 2, Gtk::FILL, Gtk::FILL, 2, 4)
+      table.attach(user,   1, 2, 1, 2, Gtk::FILL, Gtk::FILL, 2, 4)
+      table.attach(label2, 0, 1, 2, 3, Gtk::FILL, Gtk::FILL, 2, 4)
+      table.attach(pass,   1, 2, 2, 3, Gtk::FILL, Gtk::FILL, 2, 4)
+
+      ok    = Gtk::Button.new("Add account.")
+      align = Gtk::Alignment.new(1, 0, 0, 0).add(ok)
+
+      table.attach(align,   1, 2, 3, 4, Gtk::FILL, Gtk::FILL, 2, 2)
+
+      ok.signal_connect("clicked") do |w|
+        _username = user.text
+        _password = pass.text
+
+        begin
+          @@manager.add_password(_username, _password)
+          iter = @store.append
+          iter[USERNAME] = _username
+          iter[PASSWORD] = _password
+          window.destroy
+        rescue
+          puts "lolfail"
+        end
+      end
+
+      window.add(table)
       window.show_all
     end
   end

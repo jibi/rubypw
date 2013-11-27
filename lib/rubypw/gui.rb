@@ -19,6 +19,30 @@ module GUI
       Gtk.main
     end
 
+    def show_error(message)
+      md = Gtk::MessageDialog.new($main_application_window, Gtk::Dialog::MODAL |
+        Gtk::Dialog::DESTROY_WITH_PARENT, Gtk::MessageDialog::ERROR,
+        Gtk::MessageDialog::BUTTONS_CLOSE, message)
+
+      md.window_position = Gtk::Window::POS_CENTER_ALWAYS
+      md.run
+      md.destroy
+    end
+
+    def show_confirm_dialog(title, message, &block)
+      dialog = Gtk::Dialog.new(title, $main_application_window,
+        Gtk::Dialog::MODAL | Gtk::Dialog::DESTROY_WITH_PARENT,
+        [ Gtk::Stock::CANCEL, Gtk::Dialog::RESPONSE_REJECT ],
+        [ Gtk::Stock::OK,     Gtk::Dialog::RESPONSE_ACCEPT ])
+
+      dialog.window_position = Gtk::Window::POS_CENTER_ALWAYS
+      dialog.vbox.add(Gtk::Label.new(message))
+      dialog.show_all
+
+      dialog.run(&block)
+      dialog.destroy
+    end
+
     def show_db_window
       db_window                 = Gtk::Window.new
       db_window.title           = "RubyPW"
@@ -114,11 +138,7 @@ module GUI
             @@manager.upd_username(iter[USERNAME], new_username)
             iter[USERNAME] = new_username
           rescue
-            md = Gtk::MessageDialog.new(window, Gtk::Dialog::MODAL |
-                                        Gtk::Dialog::DESTROY_WITH_PARENT, Gtk::MessageDialog::ERROR,
-                                        Gtk::MessageDialog::BUTTONS_CLOSE, "Username already exists.")
-            md.run
-            md.destroy
+            show_error("Username already exists.")
           end
         end
       end
@@ -222,7 +242,7 @@ module GUI
           iter[PASSWORD] = _password
           window.destroy
         rescue
-          puts "lolfail"
+          show_error("Username already exists.")
         end
       end
 

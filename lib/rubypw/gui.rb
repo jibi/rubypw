@@ -168,9 +168,14 @@ module GUI
       end
 
       del_menu.signal_connect("activate") do
-        iter = treeview.selection.selected
-        @@manager.del_password(iter[USERNAME])
-        @store.remove(iter)
+        show_confirm_dialog('Delete accout', 'Are you sure?') do |response|
+          if response == Gtk::Dialog::RESPONSE_ACCEPT
+            iter = treeview.selection.selected
+            puts iter[USERNAME].encoding
+            @@manager.del_password(iter[USERNAME])
+            @store.remove(iter)
+          end
+        end
       end
 
       treeview.signal_connect("button_press_event") do |widget, event|

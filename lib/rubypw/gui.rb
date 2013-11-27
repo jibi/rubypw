@@ -86,8 +86,12 @@ module GUI
       new_account = Gtk::Button.new("New Account.")
 
       menu      = Gtk::Menu.new
-      copy_menu = Gtk::MenuItem.new("Copy Password")
-      del_menu  = Gtk::MenuItem.new("Delete Account")
+      copy_menu = Gtk::ImageMenuItem.new(Gtk::Stock::COPY)
+      del_menu  = Gtk::ImageMenuItem.new(Gtk::Stock::DELETE)
+
+      copy_menu.label = "Copy Password"
+      del_menu.label  = "Delete Account"
+
       menu.append(copy_menu)
       menu.append(del_menu)
       menu.show_all

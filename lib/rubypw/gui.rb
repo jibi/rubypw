@@ -87,7 +87,9 @@ module GUI
 
       menu      = Gtk::Menu.new
       copy_menu = Gtk::MenuItem.new("Copy Password")
+      del_menu  = Gtk::MenuItem.new("Delete Account")
       menu.append(copy_menu)
+      menu.append(del_menu)
       menu.show_all
 
       @@manager.pw.to_a.each do |p|
@@ -139,6 +141,12 @@ module GUI
         [Gdk::Selection::CLIPBOARD, Gdk::Selection::PRIMARY].each do |w|
           Gtk::Clipboard.get(w).set_text(password).store
         end
+      end
+
+      del_menu.signal_connect("activate") do
+        iter = treeview.selection.selected
+        @@manager.del_password(iter[USERNAME])
+        @store.remove(iter)
       end
 
       treeview.signal_connect("button_press_event") do |widget, event|

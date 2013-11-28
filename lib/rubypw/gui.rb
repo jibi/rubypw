@@ -171,7 +171,6 @@ module GUI
         show_confirm_dialog('Delete accout', 'Are you sure?') do |response|
           if response == Gtk::Dialog::RESPONSE_ACCEPT
             iter = treeview.selection.selected
-            puts iter[USERNAME].encoding
             @@manager.del_password(iter[USERNAME])
             @store.remove(iter)
           end

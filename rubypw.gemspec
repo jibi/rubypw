@@ -8,10 +8,10 @@ Gem::Specification.new {|s|
 	s.summary = 'Just a stupid password manager that use AES256 to encrypt your credentials'
 	s.description = '.'
 	s.files = Dir['lib/**/*.rb']
-	s.executables = 'rubypw'
+	s.executables = ['rubypw', 'gtkrubypw']
 
 	s.add_dependency 'ruport'
 	s.add_dependency 'rqrcode'
 	s.add_dependency 'chunky_png'
-	s.add_dependency 'gtk'
+	s.add_dependency 'gtk2'
 }
